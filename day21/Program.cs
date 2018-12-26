@@ -6,7 +6,6 @@ using System.Linq;
 class Op
 {
     public string Name;
-    public int Code;
     public Action<int[], int, int, int> Handler;
 }
 
@@ -34,22 +33,18 @@ class Program
 
     static void Main(string[] args)
     {
-        bool Part1 = false;
         string[] input = File.ReadAllLines("input.txt");
         int ipReg = int.Parse(input[0].Substring(4));
         int ip = 0;
         var program = new List<(string op, int v1, int v2, int v3)>();
         int[] regs = new int[6];
-        int instructionLimit = int.MaxValue;
-
         Dictionary<string, Op> opcodes = new Dictionary<string, Op>();
         foreach (var op in opcodeslist) opcodes.Add(op.Name, op);
 
-        if (!Part1)
-        {
-            regs[0] = 1;
-            instructionLimit = 20;
-        }
+        //regs[0] = 15883666;
+
+        HashSet<int> haltingValues = new HashSet<int>();
+        int prev = 0;
 
         foreach (string instr in input.Skip(1))
         {
@@ -57,35 +52,40 @@ class Program
             program.Add((parts[0], int.Parse(parts[1]), int.Parse(parts[2]), int.Parse(parts[3])));
         }
 
-        while (instructionLimit-- > 0)
+        while (true)
         {
             regs[ipReg] = ip;
             var instr = program[ip];
-            //Console.Write($"ip={ip} [{regs[0]},{regs[1]},{regs[2]},{regs[3]},{regs[4]},{regs[5]}] {instr.op} {instr.v1} {instr.v2} {instr.v3} ");
+
+            // Instruction 28 is the only place register 0 is being used. Printing the state tells us which value the eqrr instruction (eqrr 1 0 3) compares to first.
+            // Find first halting value (part 1) and last before they start repeating (part 2).
+            if (ip == 28)
+            {
+                int r1 = regs[1];
+
+                if (haltingValues.Contains(r1))
+                {
+                    Console.WriteLine("Halting values repeating. Last value: " + prev);
+                    break;
+                }
+                else
+                {
+                    if (haltingValues.Count == 0)
+                    {
+                        Console.WriteLine("First halting value: " + r1);
+                    }
+                    haltingValues.Add(r1);
+                }
+                //Console.Write($"ip={ip} [{regs[0]},{regs[1]},{regs[2]},{regs[3]},{regs[4]},{regs[5]}] {instr.op} {instr.v1} {instr.v2} {instr.v3} ");
+                prev = r1;
+            }
             opcodes[instr.op].Handler(regs, instr.v1, instr.v2, instr.v3);
-            //Console.WriteLine($"[{regs[0]},{regs[1]},{regs[2]},{regs[3]},{regs[4]},{regs[5]}]");
+            //if (ip == 28) Console.WriteLine($"[{regs[0]},{regs[1]},{regs[2]},{regs[3]},{regs[4]},{regs[5]}]");
             ip = regs[ipReg] + 1;
             if (ip < 0 || ip >= program.Count) break;
         }
 
-        if (!Part1)
-        {
-            // Assembly code basically calculates sum of all factors of the number in regs[4]. Same slow imlementation as the following
-
-            for (int x = 1; x <= regs[4]; x++)
-            {
-                for (int y = 1; y <= regs[4]; y++)
-                {
-                    if (x * y == regs[4]) regs[0] += x;
-                }
-            }
-
-            // Which is faster to solve manually as
-            // Sum of factors of 10 551 378 = 1 + 2 + 3 + 6 + 199 + 398 + 597 + 1194 + 8837 + 17674 + 26511 + 53022 + 1758563 + 3517126 + 5275689 + 10551378 = 21 211 200
-        }
-
-        Console.WriteLine(regs[0]);
-
+        Console.WriteLine("halted");
         Console.ReadLine();
     }
 }

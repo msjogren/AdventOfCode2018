@@ -25,7 +25,7 @@ class Program
         new Op() {Name = "setr", Handler = (reg, a, b, c) => reg[c] = reg[a] },                     // setr reg - reg
         new Op() {Name = "seti", Handler = (reg, a, b, c) => reg[c] = a },                          // seti val - reg
         new Op() {Name = "gtir", Handler = (reg, a, b, c) => reg[c] = a > reg[b] ? 1 : 0 },         // gtir val reg reg
-        new Op() {Name = "gtir", Handler = (reg, a, b, c) => reg[c] = reg[a] > b ? 1 : 0 },         // gtri reg val reg
+        new Op() {Name = "gtri", Handler = (reg, a, b, c) => reg[c] = reg[a] > b ? 1 : 0 },         // gtri reg val reg
         new Op() {Name = "gtrr", Handler = (reg, a, b, c) => reg[c] = reg[a] > reg[b] ? 1 : 0 },    // gtrr reg reg reg
         new Op() {Name = "eqir", Handler = (reg, a, b, c) => reg[c] = a == reg[b] ? 1 : 0 },        // eqir val reg reg
         new Op() {Name = "eqri", Handler = (reg, a, b, c) => reg[c] = reg[a] == b ? 1 : 0 },        // eqri reg val reg
